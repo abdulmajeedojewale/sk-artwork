@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+:root {
+  --foreground-rgb: 248, 250, 252;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background-color: #0d101d;
+  background-image: 
+    radial-gradient(ellipse at 50% 0%, rgba(245, 158, 11, 0.22) 0%, rgba(168, 85, 247, 0.16) 40%, rgba(13, 16, 29, 0.96) 95%),
+    url("https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=1600&auto=format&fit=crop&q=80");
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: overlay, soft-light;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0d14;
+}
+::-webkit-scrollbar-thumb {
+  background: #f59e0b;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d97706;
+}

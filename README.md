@@ -74,7 +74,7 @@ FLUTTERWAVE_SECRET_KEY=FLWSECK_TEST-xxx
 
 1. Create a new project on [Supabase](https://supabase.com).
 2. Go to the SQL Editor in your Supabase dashboard.
-3. Paste and run the contents of `supabase/schema.sql`.
+3. Paste and run the contents of [`supabase/schema.sql`](file:///c:/Users/USER/Documents/sk%20artwork/supabase/schema.sql).
 4. This sets up all 13 PostgreSQL tables, auto-profile creation triggers, indexes, and Row-Level Security (RLS) policies.
 
 ---
