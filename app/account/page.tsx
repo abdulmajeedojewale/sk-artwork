@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { User, ShoppingBag, Download, Heart, MapPin, Settings, ShieldAlert } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { siteConfig } from '@/config/site';
 import { DEMO_ORDERS } from '@/lib/demoData';
 
 export default function AccountPage() {
