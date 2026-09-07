@@ -2,11 +2,12 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Heart, Download, Package, Star, Sparkles } from 'lucide-react';
+import { ShoppingBag, Heart, Download, Package, Star, Maximize2 } from 'lucide-react';
 import { Product } from '@/types/database';
 import { siteConfig } from '@/config/site';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import { useImageViewer } from '@/context/ImageViewerContext';
 
 interface ProductCardProps {
   product: Product;
@@ -15,6 +16,7 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart, updateQuantity, getItemQuantity } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const { openImage } = useImageViewer();
   const inWishlist = isInWishlist(product.id);
   const currentQty = getItemQuantity(product.id);
 
@@ -30,24 +32,25 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     <div className="group relative bg-[#121824] border border-slate-800/80 rounded-2xl overflow-hidden hover:border-amber-500/40 transition-all duration-300 flex flex-col justify-between shadow-xl">
       
       {/* Top Image Box */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-900">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-900 cursor-pointer">
         <img
           src={mainImage}
           alt={product.title}
+          onClick={() => openImage(mainImage, product.title, siteConfig.currency.format(effectivePrice))}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
 
         {/* Digital vs Physical Badge */}
-        <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
+        <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10 pointer-events-none">
           {product.is_digital ? (
             <span className="px-2.5 py-1 rounded-lg bg-purple-950/80 backdrop-blur-md border border-purple-500/30 text-purple-300 text-[11px] font-bold flex items-center gap-1">
               <Download className="w-3 h-3 text-purple-400" />
-              Digital Asset
+              Digital Edition
             </span>
           ) : (
             <span className="px-2.5 py-1 rounded-lg bg-blue-950/80 backdrop-blur-md border border-blue-500/30 text-blue-300 text-[11px] font-bold flex items-center gap-1">
               <Package className="w-3 h-3 text-blue-400" />
-              Physical Canvas
+              Original Canvas
             </span>
           )}
 
@@ -58,21 +61,37 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           )}
         </div>
 
-        {/* Wishlist Floating Button */}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            toggleWishlist(product);
-          }}
-          className={`absolute top-3 right-3 p-2.5 rounded-xl backdrop-blur-md transition-all z-10 ${
-            inWishlist
-              ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/30'
-              : 'bg-slate-900/70 text-slate-300 hover:text-white hover:bg-slate-900'
-          }`}
-          aria-label="Toggle wishlist"
-        >
-          <Heart className={`w-4 h-4 ${inWishlist ? 'fill-current' : ''}`} />
-        </button>
+        {/* Top Right Actions: Lightbox Preview & Wishlist */}
+        <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              openImage(mainImage, product.title, siteConfig.currency.format(effectivePrice));
+            }}
+            className="p-2 rounded-xl backdrop-blur-md bg-slate-900/70 text-slate-300 hover:text-white hover:bg-slate-900 transition-all"
+            title="Open Image"
+            aria-label="View Full Image"
+          >
+            <Maximize2 className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleWishlist(product);
+            }}
+            className={`p-2 rounded-xl backdrop-blur-md transition-all ${
+              inWishlist
+                ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/30'
+                : 'bg-slate-900/70 text-slate-300 hover:text-white hover:bg-slate-900'
+            }`}
+            aria-label="Toggle wishlist"
+          >
+            <Heart className={`w-3.5 h-3.5 ${inWishlist ? 'fill-current' : ''}`} />
+          </button>
+        </div>
       </div>
 
       {/* Content Details */}
@@ -80,7 +99,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div>
           <div className="flex items-center gap-1.5 text-xs text-amber-400 font-semibold mb-1">
             <Star className="w-3.5 h-3.5 fill-amber-400" />
-            <span>4.9 (24 reviews)</span>
+            <span>5.0 (Certified Original)</span>
           </div>
 
           <Link href={`/shop/${product.slug}`} className="block group-hover:text-amber-400 transition-colors">

@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import { Palette, Mail, Phone, MapPin, Send, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 import { Logo } from '@/components/Logo';
+import { triggerSecretAccess } from '@/components/SecretAccessModal';
 
-// Brand icons removed from lucide-react v1.x — using inline SVGs
 const InstagramIcon = ({ className }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
 );
@@ -20,6 +20,24 @@ const DribbbleIcon = ({ className }: { className?: string }) => (
 export const Footer = () => {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  
+  // Discreet mobile gesture: 5 taps within 3 seconds on copyright text
+  const tapCountRef = useRef(0);
+  const tapTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleDiscreetTap = () => {
+    tapCountRef.current += 1;
+    if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
+
+    if (tapCountRef.current >= 5) {
+      tapCountRef.current = 0;
+      triggerSecretAccess();
+    } else {
+      tapTimerRef.current = setTimeout(() => {
+        tapCountRef.current = 0;
+      }, 3000);
+    }
+  };
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,53 +88,53 @@ export const Footer = () => {
             </div>
           </div>
 
-          {/* Col 2: Quick Links */}
+          {/* Col 2: Studio Navigation */}
           <div className="space-y-3">
             <h3 className="text-xs font-bold text-white uppercase tracking-wider font-display">
               Studio Navigation
             </h3>
             <ul className="space-y-2 text-xs">
-              <li><Link href="/shop" className="hover:text-amber-400 transition-colors">Artwork Shop</Link></li>
-              <li><Link href="/portfolio" className="hover:text-amber-400 transition-colors">Artwork Portfolio</Link></li>
-              <li><Link href="/services" className="hover:text-amber-400 transition-colors">Painting & Art Services</Link></li>
-              <li><Link href="/contact" className="hover:text-amber-400 transition-colors">Contact & Inquiries</Link></li>
-              <li><Link href="/faqs" className="hover:text-amber-400 transition-colors">FAQs</Link></li>
+              <li><Link href="/shop" className="hover:text-amber-400 transition-colors">Original Paintings & Artworks</Link></li>
+              <li><Link href="/artists" className="hover:text-amber-400 transition-colors">Featured African Artists</Link></li>
+              <li><Link href="/portfolio" className="hover:text-amber-400 transition-colors">Studio Portfolio & Gallery</Link></li>
+              <li><Link href="/services" className="hover:text-amber-400 transition-colors">Custom Portrait & Mural Services</Link></li>
+              <li><Link href="/faqs" className="hover:text-amber-400 transition-colors">Frequently Asked Questions</Link></li>
             </ul>
           </div>
 
-          {/* Col 3: Customer Account */}
+          {/* Col 3: Customer Portal */}
           <div className="space-y-3">
             <h3 className="text-xs font-bold text-white uppercase tracking-wider font-display">
-              Customer Portal
+              Collector & Client Area
             </h3>
             <ul className="space-y-2 text-xs">
-              <li><Link href="/account" className="hover:text-amber-400 transition-colors">Account Dashboard</Link></li>
-              <li><Link href="/account/orders" className="hover:text-amber-400 transition-colors">Order History</Link></li>
-              <li><Link href="/account/downloads" className="hover:text-amber-400 transition-colors">Digital Downloads</Link></li>
-              <li><Link href="/wishlist" className="hover:text-amber-400 transition-colors">Saved Wishlist</Link></li>
+              <li><Link href="/account" className="hover:text-amber-400 transition-colors">Client Account</Link></li>
+              <li><Link href="/account/orders" className="hover:text-amber-400 transition-colors">Track Orders</Link></li>
+              <li><Link href="/account/downloads" className="hover:text-amber-400 transition-colors">Digital Art Certificates</Link></li>
+              <li><Link href="/wishlist" className="hover:text-amber-400 transition-colors">Saved Favorites</Link></li>
               <li><Link href="/cart" className="hover:text-amber-400 transition-colors">Shopping Cart</Link></li>
             </ul>
           </div>
 
-          {/* Col 4: Newsletter */}
+          {/* Col 4: Studio Updates */}
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-white uppercase tracking-wider font-display">
-              Collector Newsletter
+              Studio Newsletter
             </h3>
             <p className="text-xs text-slate-400">
-              Subscribe to receive exclusive asset drops, artwork discount vouchers, and tutorial releases.
+              Receive updates on new fine art releases, studio exhibitions, and bespoke commission openings.
             </p>
             {subscribed ? (
               <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
-                <span>Subscribed! Thank you for joining.</span>
+                <span>Thank you for subscribing to SK Artworks.</span>
               </div>
             ) : (
               <form onSubmit={handleSubscribe} className="space-y-2">
                 <div className="relative">
                   <input
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder="Enter your email address"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
@@ -125,7 +143,7 @@ export const Footer = () => {
                   <button
                     type="submit"
                     className="absolute right-1.5 top-1.5 p-1.5 rounded-lg bg-amber-500 text-slate-950 hover:bg-amber-400 transition-colors"
-                    aria-label="Submit newsletter"
+                    aria-label="Subscribe"
                   >
                     <Send className="w-3.5 h-3.5" />
                   </button>
@@ -135,16 +153,22 @@ export const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom Bar: Security & Copyright */}
+        {/* Bottom Bar: Discreet Trigger & Copyright */}
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} {siteConfig.name}. Designed & Developed by {siteConfig.artistName}. All rights reserved.</p>
+          <p 
+            onClick={handleDiscreetTap}
+            className="cursor-default select-none transition-colors hover:text-slate-400"
+            title=""
+          >
+            © {new Date().getFullYear()} {siteConfig.name}. Created by {siteConfig.artistName}. All rights reserved.
+          </p>
           <div className="flex items-center space-x-6">
             <span className="flex items-center gap-1.5 text-slate-400">
               <ShieldCheck className="w-4 h-4 text-amber-400" />
-              Secured by Paystack & Flutterwave
+              Secured Payments via Paystack & Flutterwave
             </span>
             <Link href="/contact" className="hover:text-slate-300">Privacy Policy</Link>
-            <Link href="/contact" className="hover:text-slate-300">Terms of Service</Link>
+            <Link href="/contact" className="hover:text-slate-300">Terms of Commission</Link>
           </div>
         </div>
       </div>

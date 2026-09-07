@@ -11,13 +11,14 @@ import {
   ArrowRight, 
   Sparkles, 
   MessageSquare,
-  Award,
-  Filter
+  Filter,
+  Maximize2
 } from 'lucide-react';
 import { getArtistProfiles } from '@/lib/marketplaceStore';
 import { ContactArtistModal } from '@/components/ContactArtistModal';
 import { BookArtistModal } from '@/components/BookArtistModal';
 import { ArtistProfile } from '@/types/database';
+import { useImageViewer } from '@/context/ImageViewerContext';
 
 export default function ArtistsDirectoryPage() {
   const [artists] = useState<ArtistProfile[]>(() => getArtistProfiles());
@@ -25,9 +26,10 @@ export default function ArtistsDirectoryPage() {
   const [selectedSpecialty, setSelectedSpecialty] = useState('all');
   const [activeContactArtist, setActiveContactArtist] = useState<ArtistProfile | null>(null);
   const [activeBookArtist, setActiveBookArtist] = useState<ArtistProfile | null>(null);
+  const { openImage } = useImageViewer();
 
-  // Specialties list
-  const allSpecialties = ['all', 'Oil Portraiture', 'Wall Murals', 'Fine Art Painting', 'Sculpture', 'Landscape Art'];
+  // Painting Specialties list
+  const allSpecialties = ['all', 'Portraiture', 'Wall Murals', 'Fine Art Painting', 'Landscape Art', 'Abstract Painting'];
 
   const filteredArtists = artists.filter((artist) => {
     const matchesSearch = 
@@ -51,18 +53,18 @@ export default function ArtistsDirectoryPage() {
         
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold shadow-lg">
           <Palette className="w-4 h-4 text-amber-400" />
-          <span>SK Artworks Partner Marketplace</span>
+          <span>SK Artworks Resident Collective</span>
         </div>
 
         <h1 className="text-3xl sm:text-5xl font-black font-display tracking-tight text-white leading-tight">
-          Discover Verified Artists & <br className="hidden sm:inline" />
+          Discover Verified African Artists & <br className="hidden sm:inline" />
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-amber-200 to-purple-400">
-            Master Painters
+            Fine Art Painters
           </span>
         </h1>
 
         <p className="text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed">
-          Browse verified fine artists, sculptors, and muralists curated by <strong className="text-white">Abdulmajeed Olasunkanmi O. (Founder)</strong>. Explore portfolios, commission bespoke artworks, or book custom services directly.
+          Explore curated Nigerian and African fine artists, portrait painters, and architectural muralists led by <strong className="text-white">Abdulmajeed Olasunkanmi O.</strong>. Explore artist portfolios and commission original paintings directly.
         </p>
 
         {/* Filter Controls */}
@@ -71,7 +73,7 @@ export default function ArtistsDirectoryPage() {
             <Search className="w-4 h-4 text-slate-500 absolute left-4 top-3.5" />
             <input
               type="text"
-              placeholder="Search by artist name, bio, or studio..."
+              placeholder="Search by artist name, style, or studio..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-slate-900/90 border border-slate-800 rounded-2xl pl-11 pr-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 shadow-inner"
@@ -100,7 +102,7 @@ export default function ArtistsDirectoryPage() {
       {/* Artists Directory Grid */}
       <div className="space-y-6">
         <div className="flex items-center justify-between text-xs text-slate-400 border-b border-slate-800 pb-3">
-          <span>Showing <strong className="text-white font-bold">{filteredArtists.length}</strong> Marketplace Artists</span>
+          <span>Showing <strong className="text-white font-bold">{filteredArtists.length}</strong> Resident Artists</span>
           <span>Curated by SK Artworks</span>
         </div>
 
@@ -112,16 +114,19 @@ export default function ArtistsDirectoryPage() {
             >
               <div>
                 {/* Cover Image & Avatar Banner */}
-                <div className="relative h-36 w-full bg-slate-900 overflow-hidden">
+                <div 
+                  className="relative h-36 w-full bg-slate-900 overflow-hidden cursor-pointer"
+                  onClick={() => openImage(artist.cover_image, `${artist.artist_name} Studio`, artist.studio_name)}
+                >
                   <img
                     src={artist.cover_image || 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=800'}
                     alt={artist.artist_name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#121824] via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#121824] via-transparent to-transparent pointer-events-none" />
                   
                   {artist.is_featured && (
-                    <span className="absolute top-3 right-3 px-3 py-1 rounded-full bg-amber-500 text-slate-950 font-bold text-[10px] uppercase tracking-wider shadow-lg flex items-center gap-1">
+                    <span className="absolute top-3 right-3 px-3 py-1 rounded-full bg-amber-500 text-slate-950 font-bold text-[10px] uppercase tracking-wider shadow-lg flex items-center gap-1 pointer-events-none">
                       <Sparkles className="w-3 h-3" /> Featured Artist
                     </span>
                   )}
@@ -130,15 +135,24 @@ export default function ArtistsDirectoryPage() {
                 {/* Profile Header Info */}
                 <div className="px-6 pt-0 pb-4 relative -mt-10 space-y-3">
                   <div className="flex items-end justify-between">
-                    <img
-                      src={artist.avatar_url || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150'}
-                      alt={artist.artist_name}
-                      className="w-20 h-20 rounded-2xl object-cover ring-4 ring-[#121824] shadow-2xl shrink-0"
-                    />
+                    <div 
+                      className="relative group/avatar cursor-pointer"
+                      onClick={() => openImage(artist.avatar_url, artist.artist_name, `${artist.studio_name} — ${artist.location}`)}
+                    >
+                      <img
+                        src={artist.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
+                        alt={artist.artist_name}
+                        className="w-20 h-20 rounded-2xl object-cover ring-4 ring-[#121824] shadow-2xl shrink-0"
+                      />
+                      <div className="absolute inset-0 rounded-2xl bg-black/40 flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity">
+                        <Maximize2 className="w-4 h-4 text-white" />
+                      </div>
+                    </div>
+
                     <div className="flex items-center gap-1 bg-slate-900 px-3 py-1 rounded-full border border-slate-800 text-amber-400 text-xs font-bold">
                       <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                      <span>{artist.rating || 4.9}</span>
-                      <span className="text-[10px] text-slate-500">({artist.reviews_count || 12})</span>
+                      <span>{artist.rating || 5.0}</span>
+                      <span className="text-[10px] text-slate-500">({artist.reviews_count || 18})</span>
                     </div>
                   </div>
 
@@ -177,7 +191,7 @@ export default function ArtistsDirectoryPage() {
                   onClick={() => setActiveContactArtist(artist)}
                   className="px-3.5 py-2 rounded-xl bg-slate-800 text-slate-200 text-xs font-semibold hover:bg-slate-700 transition-colors flex items-center gap-1.5"
                 >
-                  <MessageSquare className="w-3.5 h-3.5 text-amber-400" /> Reach Out
+                  <MessageSquare className="w-3.5 h-3.5 text-amber-400" /> Message
                 </button>
 
                 <Link

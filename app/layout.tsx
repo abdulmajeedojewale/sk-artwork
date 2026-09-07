@@ -6,6 +6,9 @@ import { Footer } from '@/components/Footer';
 import { AuthProvider } from '@/context/AuthContext';
 import { CartProvider } from '@/context/CartContext';
 import { WishlistProvider } from '@/context/WishlistContext';
+import { ImageViewerProvider } from '@/context/ImageViewerContext';
+import { ImageViewerModal } from '@/components/ImageViewerModal';
+import { SecretAccessModal } from '@/components/SecretAccessModal';
 
 export const metadata: Metadata = {
   title: {
@@ -13,7 +16,17 @@ export const metadata: Metadata = {
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
-  keywords: ['Graphic Design', '3D Icons', 'Vector Assets', 'Branding Mockups', 'Digital Art', 'Photoshop Mockups', 'Paystack', 'Nigeria'],
+  keywords: [
+    'Fine Art',
+    'African Art Studio',
+    'Portrait Painting',
+    'Oil on Canvas',
+    'Landscape Art',
+    'Life Painting',
+    'Interior Wall Fine Art',
+    'Custom Art Commissions',
+    'Lagos Nigeria Artist'
+  ],
   openGraph: {
     type: 'website',
     locale: 'en_US',
@@ -47,9 +60,13 @@ export default function RootLayout({
         <AuthProvider>
           <CartProvider>
             <WishlistProvider>
-              <Navbar />
-              <main className="flex-1">{children}</main>
-              <Footer />
+              <ImageViewerProvider>
+                <Navbar />
+                <main className="flex-1">{children}</main>
+                <Footer />
+                <ImageViewerModal />
+                <SecretAccessModal />
+              </ImageViewerProvider>
             </WishlistProvider>
           </CartProvider>
         </AuthProvider>

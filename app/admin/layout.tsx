@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
   LayoutDashboard, 
   Package, 
@@ -16,7 +16,8 @@ import {
   ArrowLeft,
   Sparkles,
   CheckSquare,
-  CreditCard
+  CreditCard,
+  PlusCircle
 } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 import { useAuth } from '@/context/AuthContext';
@@ -24,15 +25,41 @@ import { Logo } from '@/components/Logo';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { user, isAdmin, login } = useAuth();
+  const router = useRouter();
+  const { user, isAdmin, isLoading } = useAuth();
+
+  const isLoginPage = pathname === '/admin/login';
+
+  useEffect(() => {
+    if (!isLoading && !isAdmin && !isLoginPage) {
+      router.replace('/admin/login');
+    }
+  }, [isLoading, isAdmin, isLoginPage, router]);
+
+  if (isLoginPage) {
+    return <>{children}</>;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#06080d] flex items-center justify-center text-slate-400 text-xs">
+        Loading CMS Administration...
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return null;
+  }
 
   const adminNav = [
     { name: 'Executive Overview', href: '/admin', icon: LayoutDashboard },
+    { name: 'Artwork Management', href: '/admin/products', icon: Package },
+    { name: 'Add New Artwork', href: '/admin/products/new', icon: PlusCircle },
     { name: 'Artwork Moderation', href: '/admin/submissions', icon: CheckSquare },
     { name: 'Marketplace Artists', href: '/admin/artists', icon: Users },
     { name: 'Bookings & Commissions', href: '/admin/bookings', icon: ShoppingBag },
     { name: 'Subscription Plans', href: '/admin/subscriptions', icon: CreditCard },
-    { name: 'Published Products', href: '/admin/products', icon: Package },
     { name: 'Customer Orders', href: '/admin/orders', icon: ShoppingBag },
     { name: 'Portfolio Showcase', href: '/admin/portfolio', icon: Palette },
     { name: 'Communication Hub', href: '/admin/messages', icon: Mail },

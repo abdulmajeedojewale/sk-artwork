@@ -14,7 +14,7 @@ interface FAQItem {
 const FAQS_DATA: FAQItem[] = [
   {
     question: "What type of painting services do you offer?",
-    answer: "SK Artworks offers a wide range of artwork and painting services including fine-art canvas paintings, portrait painting, landscape painting, life-image painting, interior wall painting, exterior wall painting, wall murals, decorative painting, and artistic sculptures.",
+    answer: "SK Artworks offers a wide range of artwork and painting services including fine-art canvas paintings, portrait painting, landscape painting, life-image painting, interior wall painting, exterior wall painting, and custom architectural wall murals.",
     category: "services"
   },
   {

@@ -47,7 +47,7 @@ export default function SubmitArtworkPage() {
     { label: 'Canvas Texture Detail', url: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=1000&auto=format&fit=crop&q=80' },
     { label: 'Crimson Abstraction', url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1000&auto=format&fit=crop&q=80' },
     { label: 'Celestial Art', url: 'https://images.unsplash.com/photo-1578926375605-eaf7559b1458?w=1000&auto=format&fit=crop&q=80' },
-    { label: 'Bronze Sculpture', url: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80' },
+    { label: 'African Landscape', url: 'https://images.unsplash.com/photo-1582561424760-0321d75e81fa?w=1000&auto=format&fit=crop&q=80' },
   ];
 
   const handleSubmit = (e: React.FormEvent) => {

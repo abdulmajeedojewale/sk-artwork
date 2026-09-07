@@ -15,27 +15,32 @@ import {
   Share2,
   FileText,
   Clock,
-  Sparkles
+  Sparkles,
+  Maximize2
 } from 'lucide-react';
-import { DEMO_PRODUCTS, DEMO_REVIEWS } from '@/lib/demoData';
-import { getArtistProfiles } from '@/lib/marketplaceStore';
+import { DEMO_PRODUCTS } from '@/lib/demoData';
+import { getArtistProfiles, getCustomArtworks } from '@/lib/marketplaceStore';
 import { ContactArtistModal } from '@/components/ContactArtistModal';
 import { BookArtistModal } from '@/components/BookArtistModal';
 import { siteConfig } from '@/config/site';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import { useImageViewer } from '@/context/ImageViewerContext';
 import { ProductCard } from '@/components/ProductCard';
 
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
   const slug = params?.slug as string;
+  const { openImage } = useImageViewer();
 
-  const product = DEMO_PRODUCTS.find((p) => p.slug === slug) || DEMO_PRODUCTS[0];
+  const customArtworks = getCustomArtworks();
+  const allProducts = [...customArtworks, ...DEMO_PRODUCTS];
+
+  const product = allProducts.find((p) => p.slug === slug) || allProducts[0];
   const [selectedImage, setSelectedImage] = useState<string>(
-    product.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80'
+    product.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=1000&auto=format&fit=crop&q=80'
   );
-  const [quantity, setQuantity] = useState<number>(1);
   const [addedNotice, setAddedNotice] = useState<boolean>(false);
   const [showContactModal, setShowContactModal] = useState<boolean>(false);
   const [showBookModal, setShowBookModal] = useState<boolean>(false);
@@ -51,8 +56,7 @@ export default function ProductDetailPage() {
   const effectivePrice = product.discount_price ?? product.price;
   const hasDiscount = product.discount_price && product.discount_price < product.price;
 
-  const relatedProducts = DEMO_PRODUCTS.filter((p) => p.id !== product.id).slice(0, 3);
-  const reviews = DEMO_REVIEWS.filter((r) => r.product_id === product.id || r.product_id === 'prod-1');
+  const relatedProducts = allProducts.filter((p) => p.id !== product.id).slice(0, 3);
 
   const handleAddToCart = () => {
     addToCart(product, 1);
@@ -73,7 +77,7 @@ export default function ProductDetailPage() {
       {/* Back Button */}
       <Link href="/shop" className="inline-flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-amber-400 transition-colors">
         <ArrowLeft className="w-4 h-4" />
-        Back to Shop Catalog
+        Back to Artwork Gallery
       </Link>
 
       {/* Main Grid: Gallery & Product Info */}
@@ -83,23 +87,25 @@ export default function ProductDetailPage() {
         <div className="lg:col-span-7 space-y-4">
           
           {/* Main Display Image */}
-          <div className="relative aspect-[4/3] w-full rounded-3xl overflow-hidden bg-[#121824] border border-slate-800 shadow-2xl">
+          <div 
+            className="relative aspect-[4/3] w-full rounded-3xl overflow-hidden bg-[#121824] border border-slate-800 shadow-2xl cursor-pointer group"
+            onClick={() => openImage(selectedImage, product.title, `${artistObj.artist_name} — ${siteConfig.currency.format(effectivePrice)}`)}
+          >
             <img
               src={selectedImage}
               alt={product.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
-            {product.is_digital ? (
-              <span className="absolute top-4 left-4 px-3 py-1.5 rounded-xl bg-purple-950/90 backdrop-blur-md border border-purple-500/40 text-purple-300 text-xs font-bold flex items-center gap-1.5">
-                <Download className="w-3.5 h-3.5 text-purple-400" />
-                Digital Asset Download
-              </span>
-            ) : (
-              <span className="absolute top-4 left-4 px-3 py-1.5 rounded-xl bg-blue-950/90 backdrop-blur-md border border-blue-500/40 text-blue-300 text-xs font-bold flex items-center gap-1.5">
-                <Package className="w-3.5 h-3.5 text-blue-400" />
-                Physical Canvas Edition
-              </span>
-            )}
+
+            <div className="absolute top-4 right-4 p-3 rounded-2xl bg-slate-900/80 backdrop-blur-md text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 text-xs font-semibold shadow-lg">
+              <Maximize2 className="w-4 h-4" />
+              <span>Click to Expand</span>
+            </div>
+
+            <span className="absolute top-4 left-4 px-3 py-1.5 rounded-xl bg-blue-950/90 backdrop-blur-md border border-blue-500/40 text-blue-300 text-xs font-bold flex items-center gap-1.5">
+              <Package className="w-3.5 h-3.5 text-blue-400" />
+              Original Fine Art Canvas
+            </span>
           </div>
 
           {/* Gallery Thumbnails */}
@@ -126,9 +132,9 @@ export default function ProductDetailPage() {
           <div>
             <div className="flex items-center gap-2 text-xs text-amber-400 font-bold mb-2">
               <Star className="w-4 h-4 fill-amber-400" />
-              <span>4.9 (24 Reviews)</span>
+              <span>5.0 (Certified Original)</span>
               <span className="text-slate-600">•</span>
-              <span className="text-slate-400">Category: {product.category?.name || 'Graphic Assets'}</span>
+              <span className="text-slate-400">Category: {product.category?.name || 'Fine Art Painting'}</span>
             </div>
 
             <h1 className="text-3xl font-extrabold text-white font-display leading-tight">
@@ -139,7 +145,7 @@ export default function ProductDetailPage() {
           {/* Pricing Box */}
           <div className="p-4 rounded-2xl bg-[#121824] border border-slate-800 flex items-center justify-between">
             <div>
-              <div className="text-xs text-slate-400">Total Price</div>
+              <div className="text-xs text-slate-400">Artwork Investment</div>
               <div className="text-3xl font-extrabold text-white font-display">
                 {siteConfig.currency.format(effectivePrice)}
               </div>
@@ -163,37 +169,38 @@ export default function ProductDetailPage() {
 
           {/* Description */}
           <div className="space-y-2">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Product Overview</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Artistic Vision & Background</h3>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
               {product.description}
             </p>
           </div>
 
-          {/* ARTIST PROFILE CARD WIDGET (REQUIREMENT #5) */}
+          {/* ARTIST PROFILE CARD WIDGET */}
           <div className="p-4 bg-[#121824] border border-amber-500/30 rounded-2xl space-y-3 shadow-xl">
             <div className="text-[10px] font-bold text-amber-400 uppercase tracking-widest font-display">
-              Created By Verified Artist
+              Created By Resident Artist
             </div>
             
             <div className="flex items-start gap-3">
               <img
                 src={artistObj?.avatar_url || '/founder.jpg'}
                 alt={artistObj?.artist_name || 'Abdulmajeed Olasunkanmi O.'}
-                className="w-14 h-14 rounded-2xl object-cover ring-2 ring-amber-500/40 shrink-0"
+                onClick={() => openImage(artistObj.avatar_url, artistObj.artist_name, artistObj.studio_name)}
+                className="w-14 h-14 rounded-2xl object-cover ring-2 ring-amber-500/40 shrink-0 cursor-pointer"
               />
 
               <div className="space-y-1 min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
                   <h4 className="text-sm font-bold text-white font-display truncate">
-                    {artistObj?.artist_name || 'Abdulmajeed Olasunkanmi O. (Founder)'}
+                    {artistObj?.artist_name || 'Abdulmajeed Olasunkanmi O.'}
                   </h4>
                   <span className="flex items-center gap-1 text-[10px] font-bold text-amber-400 shrink-0">
-                    <Star className="w-3 h-3 fill-amber-400" /> {artistObj?.rating || 4.9}
+                    <Star className="w-3 h-3 fill-amber-400" /> {artistObj?.rating || 5.0}
                   </span>
                 </div>
 
                 <p className="text-[11px] text-slate-300 line-clamp-2 leading-relaxed">
-                  {artistObj?.bio || 'Master painter and creative founder specializing in original fine art, portraits, and wall murals.'}
+                  {artistObj?.bio || 'Master painter specializing in original African fine art, portraits, and wall murals.'}
                 </p>
 
                 <div className="flex items-center gap-3 pt-1 text-[11px]">
@@ -208,30 +215,28 @@ export default function ProductDetailPage() {
                     onClick={() => setShowContactModal(true)}
                     className="text-slate-300 hover:text-white font-medium underline"
                   >
-                    Reach Out
+                    Message Studio
                   </button>
 
                   <button
                     onClick={() => setShowBookModal(true)}
                     className="text-slate-300 hover:text-white font-medium underline"
                   >
-                    Book Service
+                    Commission Piece
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Delivery & Access Notice */}
-          <div className="p-4 rounded-2xl bg-purple-950/20 border border-purple-500/30 space-y-2">
-            <div className="flex items-center gap-2 text-xs font-bold text-purple-300">
-              {product.is_digital ? <Download className="w-4 h-4 text-purple-400" /> : <Package className="w-4 h-4 text-blue-400" />}
-              {product.is_digital ? 'Instant Secure Digital Delivery' : 'Insured Physical Shipping'}
+          {/* Insured Shipping & Packaging Notice */}
+          <div className="p-4 rounded-2xl bg-amber-950/20 border border-amber-500/30 space-y-2">
+            <div className="flex items-center gap-2 text-xs font-bold text-amber-300">
+              <Package className="w-4 h-4 text-amber-400" />
+              <span>Insured Packaging & Authenticity Certificate</span>
             </div>
             <p className="text-[11px] text-slate-400 leading-normal">
-              {product.is_digital
-                ? 'After verified payment via Paystack or Flutterwave, instant download links and access tokens are generated in your Account Dashboard.'
-                : 'Physical canvas prints are packaged securely with certificates of authenticity and shipped via local courier across Nigeria within 3-5 business days.'}
+              Every original artwork comes with a hand-signed Certificate of Authenticity. Canvases are protected with museum-grade satin varnish and packed in custom protective timber crating for safe nationwide delivery.
             </p>
           </div>
 
@@ -276,9 +281,9 @@ export default function ProductDetailPage() {
               
               <button
                 onClick={handleBuyNow}
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-xs hover:opacity-95 shadow-xl shadow-purple-600/20 flex items-center justify-center gap-2 transition-colors"
+                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold text-xs hover:opacity-95 shadow-xl shadow-amber-500/20 flex items-center justify-center gap-2 transition-colors"
               >
-                Buy Now
+                Acquire Artwork
               </button>
             </div>
           </div>
@@ -286,7 +291,7 @@ export default function ProductDetailPage() {
           {/* Specifications Table */}
           {product.specifications && (
             <div className="pt-6 border-t border-slate-800 space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Specifications & Assets</h3>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Artwork Specifications</h3>
               <div className="bg-[#121824] border border-slate-800 rounded-2xl p-4 text-xs space-y-2">
                 {Object.entries(product.specifications).map(([key, val]) => (
                   <div key={key} className="flex items-center justify-between border-b border-slate-800/60 pb-1.5 last:border-0 last:pb-0">
@@ -301,37 +306,9 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      {/* Customer Reviews Section */}
+      {/* Related Artworks */}
       <div className="pt-12 border-t border-slate-800 space-y-6">
-        <h2 className="text-2xl font-bold text-white font-display">Customer Ratings & Reviews</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {reviews.map((rev) => (
-            <div key={rev.id} className="p-6 bg-[#121824] border border-slate-800 rounded-2xl space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-xs font-bold">
-                    {rev.user_name?.[0] || 'U'}
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-white">{rev.user_name}</div>
-                    <div className="text-[10px] text-emerald-400 flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" /> Verified Buyer
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center text-amber-400 text-xs">
-                  {'★'.repeat(rev.rating)}
-                </div>
-              </div>
-              <p className="text-xs text-slate-300 leading-relaxed">{rev.comment}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Related Products */}
-      <div className="pt-12 border-t border-slate-800 space-y-6">
-        <h2 className="text-2xl font-bold text-white font-display">Related Creative Products</h2>
+        <h2 className="text-2xl font-bold text-white font-display">More Paintings from the Collection</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
           {relatedProducts.map((p) => (
             <ProductCard key={p.id} product={p} />
