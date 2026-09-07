@@ -25,19 +25,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (savedUser) {
         setUser(JSON.parse(savedUser));
       } else {
-        // Default simulated customer session for instant demo preview
-        const demoCustomer: Profile = {
-          id: 'usr-customer-1',
-          email: 'collector@skartwork.com',
-          full_name: 'SK Art Collector',
-          avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80',
-          role: 'customer',
-          phone: '+2349072994416',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-        setUser(demoCustomer);
-        localStorage.setItem('sk_user_session', JSON.stringify(demoCustomer));
+        setUser(null);
       }
     } catch (e) {
       console.error('Failed to load user session', e);

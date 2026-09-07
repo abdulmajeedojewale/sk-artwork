@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Lock, ShieldAlert, KeyRound, ArrowRight, X, AlertCircle } from 'lucide-react';
 
+import { useAuth } from '@/context/AuthContext';
+
 export const triggerSecretAccess = () => {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('sk-open-secret-access'));
@@ -12,6 +14,7 @@ export const triggerSecretAccess = () => {
 
 export const SecretAccessModal: React.FC = () => {
   const router = useRouter();
+  const { login } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [secretCode, setSecretCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -51,7 +54,7 @@ export const SecretAccessModal: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!secretCode.trim()) {
-      setErrorMessage('Please enter the secret access code');
+      setErrorMessage('Please enter the CMS portal secret password');
       return;
     }
 
@@ -68,16 +71,17 @@ export const SecretAccessModal: React.FC = () => {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        // Save session flag for valid secret access prompt
+        // Authenticate admin session immediately and navigate to CMS
         sessionStorage.setItem('sk_admin_secret_verified', 'true');
+        login('abdulmajeedojewale@gmail.com', 'admin');
         setIsOpen(false);
         setSecretCode('');
-        router.push(data.redirectUrl || '/admin/login');
+        router.push(data.redirectUrl || '/admin');
       } else {
-        setErrorMessage(data.message || 'Invalid secret access code');
+        setErrorMessage(data.message || 'Incorrect CMS secret password');
       }
     } catch (err: any) {
-      setErrorMessage('Failed to verify access code. Please try again.');
+      setErrorMessage('Failed to verify password. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -122,7 +126,7 @@ export const SecretAccessModal: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <label className="block text-xs font-semibold text-slate-300">
-              Enter Studio Secret Key
+              CMS Portal Secret Password
             </label>
             <div className="relative">
               <input
@@ -132,7 +136,7 @@ export const SecretAccessModal: React.FC = () => {
                   setSecretCode(e.target.value);
                   if (errorMessage) setErrorMessage('');
                 }}
-                placeholder="••••••••••••"
+                placeholder="Enter secret password..."
                 autoFocus
                 className="w-full bg-[#161d2b] border border-slate-700/80 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 transition-colors tracking-widest"
               />
@@ -153,10 +157,10 @@ export const SecretAccessModal: React.FC = () => {
             className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold text-xs hover:opacity-95 shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
           >
             {loading ? (
-              <span>Authenticating...</span>
+              <span>Verifying & Unlocking...</span>
             ) : (
               <>
-                <span>Proceed to CMS Portal</span>
+                <span>Unlock & Enter CMS Portal</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}

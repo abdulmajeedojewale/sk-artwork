@@ -122,6 +122,17 @@ export const Navbar = () => {
                       </div>
 
                       <div className="py-1 space-y-1">
+                        {user.role === 'admin' && (
+                          <Link
+                            href="/admin"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-amber-400 hover:bg-amber-500/10 rounded-xl transition-colors"
+                          >
+                            <Palette className="w-4 h-4 text-amber-400" />
+                            SK CMS Portal
+                          </Link>
+                        )}
+
                         {user.role === 'artist' && (
                           <Link
                             href="/artist"
@@ -166,14 +177,7 @@ export const Navbar = () => {
                     </div>
                   )}
                 </div>
-              ) : (
-                <Link
-                  href="/auth/login"
-                  className="px-4 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 hover:opacity-90 shadow-lg shadow-amber-500/20 transition-all"
-                >
-                  Sign In
-                </Link>
-              )}
+              ) : null}
             </div>
 
             {/* Mobile Menu Trigger */}

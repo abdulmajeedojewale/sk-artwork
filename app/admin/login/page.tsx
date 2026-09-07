@@ -17,8 +17,8 @@ export default function AdminLoginPage() {
 
   const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      setError('Please enter your administrator credentials');
+    if (!password) {
+      setError('Please enter the administrator secret password');
       return;
     }
 
@@ -26,9 +26,21 @@ export default function AdminLoginPage() {
     setError('');
 
     try {
-      // Login with admin role
-      await login(email, 'admin');
-      router.push('/admin');
+      const res = await fetch('/api/admin/secret-access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: password.trim() }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        sessionStorage.setItem('sk_admin_secret_verified', 'true');
+        await login(email || 'abdulmajeedojewale@gmail.com', 'admin');
+        router.push('/admin');
+      } else {
+        setError(data.message || 'Incorrect administrator secret password');
+      }
     } catch (err: any) {
       setError(err.message || 'Authentication failed. Please verify credentials.');
     } finally {
@@ -74,13 +86,13 @@ export default function AdminLoginPage() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-slate-300">Admin Password</label>
+            <label className="block text-xs font-semibold text-slate-300">Secret CMS Password</label>
             <div className="relative">
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••••••"
+                placeholder="Enter CMS secret password..."
                 required
                 className="w-full bg-[#161d2b] border border-slate-700 rounded-2xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-colors"
               />
